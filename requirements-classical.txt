@@ -1,0 +1,8 @@
+# Optional heavy ML deps that unlock:
+#   - RoBERTa sentiment baseline (transformers + torch)
+#   - Sentence-transformer embeddings for thematic clustering
+# The app works without these — it falls back to TF-IDF for clustering and
+# hides the RoBERTa benchmark column.
+transformers>=4.46.0
+torch>=2.5.0
+sentence-transformers>=3.3.0
