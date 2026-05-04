@@ -8,13 +8,17 @@ Opinion mining on X-style social posts, powered by Claude.
 
 > Live demo: **<https://x-opinionate.streamlit.app>** *(replace with your real Cloud URL once deployed; the badge above already links there)*
 
-Two dashboards in one Streamlit app:
+Three dashboards in one Streamlit app:
 
-1. **Brand Sentiment Dashboard** — nuanced LLM sentiment that catches *sarcasm*,
+1. **Trend Analysis** — day-wise rollup of trending hashtags as a Plotly
+   **treemap coloured by prevailing sentiment** and split by **premium vs
+   regular** users, plus a multi-day area chart, a topic × day sentiment
+   heatmap, and an optional Claude daily-brief.
+2. **Brand Sentiment Dashboard** — nuanced LLM sentiment that catches *sarcasm*,
    *frustration* and *excitement*, benchmarked against **VADER** and
    **RoBERTa**, with thematic clustering of negative tweets to surface *why*
    customers are unhappy.
-2. **Stance Detection** — given a topic, classify each tweet as **for /
+3. **Stance Detection** — given a topic, classify each tweet as **for /
    against / neutral** using **few-shot chain-of-thought** prompting, with
    per-tweet reasoning and a stance-over-time chart.
 
@@ -47,13 +51,16 @@ account. Uploading a CSV with a `text` column works too. If you set
 x-opinionate/
 ├── streamlit_app.py                Streamlit entrypoint (home + nav)
 ├── pages/
-│   ├── 1_Brand_Sentiment.py        Brand sentiment dashboard
-│   └── 2_Stance_Detection.py       Stance detection dashboard
+│   ├── 1_Trend_Analysis.py         Day-wise hashtag trends (treemap + area)
+│   ├── 2_Brand_Sentiment.py        Brand sentiment dashboard
+│   └── 3_Stance_Detection.py       Stance detection dashboard
 ├── src/
 │   ├── config.py                   Env + label constants
 │   ├── llm_client.py               Anthropic JSON wrapper
 │   ├── tweets/
 │   │   └── sources.py              Demo / CSV / live X tweet sources
+│   ├── trends/
+│   │   └── aggregate.py            Hashtag extraction + day×topic×tier rollup
 │   ├── sentiment/
 │   │   ├── vader.py                VADER baseline
 │   │   ├── roberta.py              RoBERTa baseline (optional)
@@ -65,7 +72,8 @@ x-opinionate/
 │   │   └── themes.py               Embed → cluster → Claude-named themes
 │   └── data/
 │       ├── sample_brand_tweets.json
-│       └── sample_stance_tweets.json
+│       ├── sample_stance_tweets.json
+│       └── sample_trend_tweets.json
 ├── requirements.txt
 ├── requirements-classical.txt
 └── .env.example
