@@ -146,7 +146,7 @@ else:
         height=520, margin=dict(l=10, r=10, t=10, b=10),
         coloraxis_colorbar=dict(title="Mean<br>sentiment", tickformat="+.2f"),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     cols = st.columns([3, 2])
     with cols[0]:
@@ -158,25 +158,25 @@ else:
         display["mean_compound"] = display["mean_compound"].round(2)
         display["premium_share"] = (display["premium_share"] * 100).round(0).astype(int).astype(str) + "%"
         display.columns = ["topic", "tweets", "premium", "regular", "premium %", "sentiment", "mean compound"]
-        st.dataframe(display, hide_index=True, use_container_width=True)
+        st.dataframe(display, hide_index=True, width="stretch")
 
     with cols[1]:
         st.markdown("**Premium vs regular volume**")
-        bar_df = day_top.melt(
+        bar_df = day_top[["topic", "premium_count", "regular_count"]].melt(
             id_vars="topic",
             value_vars=["premium_count", "regular_count"],
             var_name="tier",
-            value_name="count",
+            value_name="tweets",
         )
         bar_df["tier"] = bar_df["tier"].map({"premium_count": "premium", "regular_count": "regular"})
         bar_fig = px.bar(
-            bar_df, x="count", y="topic", color="tier", orientation="h",
+            bar_df, x="tweets", y="topic", color="tier", orientation="h",
             color_discrete_map={"premium": "#1f6feb", "regular": "#9aa0a6"},
             category_orders={"topic": list(day_top.sort_values("count")["topic"])},
         )
         bar_fig.update_layout(height=420, margin=dict(l=10, r=10, t=10, b=10),
                               legend=dict(orientation="h", y=1.05, x=1, xanchor="right"))
-        st.plotly_chart(bar_fig, use_container_width=True)
+        st.plotly_chart(bar_fig, width="stretch")
 
 # ---------------------------------------------------------------------------
 # Multi-day evolution.
@@ -190,7 +190,7 @@ area = px.area(
 )
 area.update_layout(height=380, margin=dict(l=10, r=10, t=10, b=10),
                    legend=dict(orientation="h", y=-0.2))
-st.plotly_chart(area, use_container_width=True)
+st.plotly_chart(area, width="stretch")
 
 # ---------------------------------------------------------------------------
 # Sentiment heatmap (topic × day).
@@ -209,7 +209,7 @@ heat_fig = px.imshow(
 )
 heat_fig.update_layout(height=380, margin=dict(l=10, r=10, t=10, b=10),
                        coloraxis_colorbar=dict(title="Mean<br>compound"))
-st.plotly_chart(heat_fig, use_container_width=True)
+st.plotly_chart(heat_fig, width="stretch")
 
 # ---------------------------------------------------------------------------
 # Voice of the audience: premium-vs-regular word clouds.
@@ -264,7 +264,7 @@ else:
             ax.imshow(wc.to_array(), interpolation="bilinear")
             ax.set_axis_off()
             fig.tight_layout(pad=0)
-            st.pyplot(fig, use_container_width=True, clear_figure=True)
+            st.pyplot(fig, width="stretch", clear_figure=True)
             st.caption(
                 "Blue = used much more by premium accounts · Gray = used much "
                 "more by regular accounts · Purple = used roughly equally."
@@ -279,7 +279,7 @@ else:
             ax.imshow(wc.to_array(), interpolation="bilinear")
             ax.set_axis_off()
             fig.tight_layout(pad=0)
-            st.pyplot(fig, use_container_width=True, clear_figure=True)
+            st.pyplot(fig, width="stretch", clear_figure=True)
 
     with tabs[2]:
         wc = wordcloud_view.single_tier_cloud(r_counts, wordcloud_view.REGULAR_COLOUR)
@@ -290,11 +290,11 @@ else:
             ax.imshow(wc.to_array(), interpolation="bilinear")
             ax.set_axis_off()
             fig.tight_layout(pad=0)
-            st.pyplot(fig, use_container_width=True, clear_figure=True)
+            st.pyplot(fig, width="stretch", clear_figure=True)
 
     with tabs[3]:
         fig = wordcloud_view.overlay_figure(p_counts, r_counts)
-        st.pyplot(fig, use_container_width=True, clear_figure=True)
+        st.pyplot(fig, width="stretch", clear_figure=True)
         st.caption(
             "Both clouds rendered with 55 % alpha on the same canvas. "
             "Where blue and gray overlap, both tiers are using the same "
@@ -308,7 +308,7 @@ else:
         if rows:
             st.dataframe(
                 pd.DataFrame(rows, columns=["word", "premium #", "regular #"]),
-                hide_index=True, use_container_width=True,
+                hide_index=True, width="stretch",
             )
         else:
             st.caption("No distinctive premium words.")
@@ -318,7 +318,7 @@ else:
         if rows:
             st.dataframe(
                 pd.DataFrame(rows, columns=["word", "regular #", "premium #"]),
-                hide_index=True, use_container_width=True,
+                hide_index=True, width="stretch",
             )
         else:
             st.caption("No distinctive regular words.")
@@ -342,7 +342,7 @@ with st.expander("Per-tweet detail (long form: one row per tweet × topic)", exp
     show["day"] = show["day"].dt.date
     st.dataframe(
         show[["day", "topic", "user_tier", "author", "polarity", "compound", "text"]],
-        hide_index=True, use_container_width=True,
+        hide_index=True, width="stretch",
     )
     buf = io.StringIO()
     show.to_csv(buf, index=False)
