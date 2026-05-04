@@ -13,7 +13,8 @@ Three dashboards in one Streamlit app:
 1. **Trend Analysis** — day-wise rollup of trending hashtags as a Plotly
    **treemap coloured by prevailing sentiment** and split by **premium vs
    regular** users, plus a multi-day area chart, a topic × day sentiment
-   heatmap, and an optional Claude daily-brief.
+   heatmap, **comparison + layered-overlay word clouds** that show what
+   each tier is talking about, and an optional Claude daily-brief.
 2. **Brand Sentiment Dashboard** — nuanced LLM sentiment that catches *sarcasm*,
    *frustration* and *excitement*, benchmarked against **VADER** and
    **RoBERTa**, with thematic clustering of negative tweets to surface *why*
