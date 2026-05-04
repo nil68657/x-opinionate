@@ -16,11 +16,22 @@ st.set_page_config(
 )
 
 st.title("x-opinionate")
-st.caption("Nuanced sentiment + stance detection for X-style posts, powered by Claude.")
+st.caption("Trend, sentiment, and stance analysis on X-style posts, powered by Claude.")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 with col1:
-    st.subheader("Brand Sentiment Dashboard")
+    st.subheader("Trend Analysis")
+    st.markdown(
+        "- Day-wise rollup of trending hashtags\n"
+        "- Treemap **coloured by prevailing sentiment**, sized by tweet volume\n"
+        "- Premium vs regular user split per topic\n"
+        "- Multi-day evolution + sentiment heatmap\n"
+        "- Optional Claude daily-brief"
+    )
+    st.page_link("pages/1_Trend_Analysis.py", label="Open dashboard →", icon="📈")
+
+with col2:
+    st.subheader("Brand Sentiment")
     st.markdown(
         "- Stream tweets mentioning a brand or product\n"
         "- Nuanced LLM sentiment that catches **sarcasm**, **frustration**, "
@@ -28,9 +39,9 @@ with col1:
         "- Benchmarked against **VADER** and **RoBERTa** baselines\n"
         "- Surface *why* customers are unhappy via thematic clustering"
     )
-    st.page_link("pages/1_Brand_Sentiment.py", label="Open dashboard →", icon="📊")
+    st.page_link("pages/2_Brand_Sentiment.py", label="Open dashboard →", icon="📊")
 
-with col2:
+with col3:
     st.subheader("Stance Detection")
     st.markdown(
         "- Pick a controversial topic\n"
@@ -39,7 +50,7 @@ with col2:
         "- Inspect the model's reasoning per post\n"
         "- Track stance evolution over time"
     )
-    st.page_link("pages/2_Stance_Detection.py", label="Open dashboard →", icon="⚖️")
+    st.page_link("pages/3_Stance_Detection.py", label="Open dashboard →", icon="⚖️")
 
 st.divider()
 
@@ -63,7 +74,8 @@ with st.sidebar:
 st.markdown(
     "### Architecture\n"
     "```\n"
-    "Tweets ──► nuanced sentiment (Claude)  ─┐\n"
+    "Tweets ──► hashtag extraction ──► day × topic × tier rollup ──► treemap + area + heatmap\n"
+    "       ──► nuanced sentiment (Claude)  ─┐\n"
     "       ──► VADER + RoBERTa baselines   ─┼─► benchmark + agreement matrix\n"
     "       ──► negative subset ──► embed ──► KMeans ──► Claude theme labels\n"
     "       ──► stance classifier (Claude)  ─► time-series of for/against/neutral\n"

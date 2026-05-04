@@ -50,15 +50,26 @@ jobs:
           from src.sentiment import vader, llm, benchmark
           from src.stance import classifier
           from src.clustering import themes
+          from src.trends import aggregate
 
           assert len(sources.demo_brand_tweets()) >= 20, "brand fixtures missing"
           assert len(sources.demo_stance_tweets()) >= 20, "stance fixtures missing"
+          trend_tweets = sources.demo_trend_tweets()
+          assert len(trend_tweets) >= 50, "trend fixtures missing"
+          assert any(t.is_premium for t in trend_tweets), "no premium tweets in fixtures"
           assert sources.available_brands(), "no demo brands"
           assert sources.available_topics(), "no demo topics"
           assert config.ANTHROPIC_MODEL, "model default missing"
           assert vader.score("This is fine.")["label"] in {"positive", "neutral", "negative"}
           assert classifier.LABELS == ["for", "against", "neutral"]
           assert benchmark.has_roberta() in {True, False}
+
+          # Trend aggregation pipeline (no LLM call).
+          ex = aggregate.explode_tweets(trend_tweets)
+          assert not ex.empty
+          rollup = aggregate.topic_day_rollup(ex)
+          assert {"count", "premium_count", "regular_count", "prevailing_sentiment"}.issubset(rollup.columns)
+          assert (rollup["count"] == rollup["premium_count"] + rollup["regular_count"]).all()
           # Cluster a tiny set with the TF-IDF fallback (no sentence-transformers in CI).
           labels = themes.cluster([
               "battery dies before lunch every day",
