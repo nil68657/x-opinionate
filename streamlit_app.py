@@ -1,8 +1,9 @@
 """x-opinionate: opinion mining on social posts using Claude.
 
-Run with::
+This is the Streamlit Community Cloud entrypoint (Cloud auto-detects this
+filename). Run locally with::
 
-    streamlit run app.py
+    streamlit run streamlit_app.py
 """
 import streamlit as st
 

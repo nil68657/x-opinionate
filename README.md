@@ -1,6 +1,12 @@
 # x-opinionate
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://x-opinionate.streamlit.app)
+[![CI](https://github.com/nil68657/x-opinionate/actions/workflows/ci.yml/badge.svg)](https://github.com/nil68657/x-opinionate/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+
 Opinion mining on X-style social posts, powered by Claude.
+
+> Live demo: **<https://x-opinionate.streamlit.app>** *(replace with your real Cloud URL once deployed; the badge above already links there)*
 
 Two dashboards in one Streamlit app:
 
@@ -27,7 +33,7 @@ pip install -r requirements-classical.txt
 cp .env.example .env
 # edit .env and set ANTHROPIC_API_KEY
 
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 The app runs fully offline against baked-in demo data (sample brand and
@@ -39,7 +45,7 @@ account. Uploading a CSV with a `text` column works too. If you set
 
 ```
 x-opinionate/
-├── app.py                          Streamlit entrypoint (home + nav)
+├── streamlit_app.py                Streamlit entrypoint (home + nav)
 ├── pages/
 │   ├── 1_Brand_Sentiment.py        Brand sentiment dashboard
 │   └── 2_Stance_Detection.py       Stance detection dashboard
@@ -72,7 +78,7 @@ x-opinionate/
 3. Fill in:
    - **Repository**: `nil68657/x-opinionate`
    - **Branch**: `main`
-   - **Main file path**: `app.py`
+   - **Main file path**: `streamlit_app.py` (auto-detected by Cloud)
    - **Python version**: pinned by `runtime.txt` (3.12).
 4. Open **Advanced settings → Secrets** and paste:
 
