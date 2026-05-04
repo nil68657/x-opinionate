@@ -50,7 +50,7 @@ jobs:
           from src.sentiment import vader, llm, benchmark
           from src.stance import classifier
           from src.clustering import themes
-          from src.trends import aggregate
+          from src.trends import aggregate, wordcloud_view
 
           assert len(sources.demo_brand_tweets()) >= 20, "brand fixtures missing"
           assert len(sources.demo_stance_tweets()) >= 20, "stance fixtures missing"
@@ -70,6 +70,14 @@ jobs:
           rollup = aggregate.topic_day_rollup(ex)
           assert {"count", "premium_count", "regular_count", "prevailing_sentiment"}.issubset(rollup.columns)
           assert (rollup["count"] == rollup["premium_count"] + rollup["regular_count"]).all()
+
+          # Word cloud pipeline.
+          p, r = wordcloud_view.tier_word_counts(trend_tweets)
+          assert sum(p.values()) > 0 and sum(r.values()) > 0, "expected both tiers to have words"
+          wc = wordcloud_view.comparison_cloud(p, r, max_words=50)
+          assert wc is not None
+          distinctive = wordcloud_view.top_distinctive(p, r, n=5)
+          assert isinstance(distinctive, list)
           # Cluster a tiny set with the TF-IDF fallback (no sentence-transformers in CI).
           labels = themes.cluster([
               "battery dies before lunch every day",

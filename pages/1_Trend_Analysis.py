@@ -2,14 +2,16 @@
 from __future__ import annotations
 
 import io
+import re
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
 from src import config
 from src.tweets import sources
-from src.trends import aggregate
+from src.trends import aggregate, wordcloud_view
 
 st.set_page_config(page_title="Trend Analysis · x-opinionate", page_icon="📈", layout="wide")
 
@@ -208,6 +210,118 @@ heat_fig = px.imshow(
 heat_fig.update_layout(height=380, margin=dict(l=10, r=10, t=10, b=10),
                        coloraxis_colorbar=dict(title="Mean<br>compound"))
 st.plotly_chart(heat_fig, use_container_width=True)
+
+# ---------------------------------------------------------------------------
+# Voice of the audience: premium-vs-regular word clouds.
+# ---------------------------------------------------------------------------
+st.subheader("Voice of the audience — premium vs regular")
+st.caption(
+    "Word frequency split by user tier. The **comparison** view colours each "
+    "word by which tier uses it more (premium = blue, regular = gray, "
+    "shared = purple). The **overlay** view layers two semi-transparent "
+    "clouds on the same canvas."
+)
+
+wc_scope = st.radio(
+    "Scope",
+    options=["All loaded tweets", f"Just {selected_day.strftime('%a %b %d')}",
+            f"Just topic {day_top.iloc[0]['topic']}" if not day_top.empty else "All loaded tweets"],
+    horizontal=True,
+    index=0,
+)
+
+def _tweet_has_topic(text: str, topic: str) -> bool:
+    """``topic`` is a normalised hashtag like ``#climatebill``."""
+    return topic in {f"#{tag.lower()}" for tag in re.findall(r"#(\w+)", text)}
+
+
+if wc_scope.startswith("Just topic") and not day_top.empty:
+    chosen_topic = day_top.iloc[0]["topic"]
+    scoped_tweets = [t for t in tweets if _tweet_has_topic(t.text, chosen_topic)]
+elif wc_scope.startswith("Just"):
+    scoped_tweets = [t for t in tweets if t.created_at.date() == selected_day]
+else:
+    scoped_tweets = tweets
+
+p_counts, r_counts = wordcloud_view.tier_word_counts(scoped_tweets)
+
+if not p_counts and not r_counts:
+    st.info("No words to plot for the selected scope.")
+else:
+    cols = st.columns(3)
+    cols[0].metric("Premium tweets in scope", sum(1 for t in scoped_tweets if t.is_premium))
+    cols[1].metric("Regular tweets in scope", sum(1 for t in scoped_tweets if not t.is_premium))
+    cols[2].metric("Distinct words", len(set(p_counts) | set(r_counts)))
+
+    tabs = st.tabs(["🟣 Comparison", "🔵 Premium only", "⚫ Regular only", "🟦⬛ Layered overlay"])
+
+    with tabs[0]:
+        wc = wordcloud_view.comparison_cloud(p_counts, r_counts)
+        if wc is None:
+            st.info("Not enough data.")
+        else:
+            fig, ax = plt.subplots(figsize=(10, 4.8), dpi=120)
+            ax.imshow(wc.to_array(), interpolation="bilinear")
+            ax.set_axis_off()
+            fig.tight_layout(pad=0)
+            st.pyplot(fig, use_container_width=True, clear_figure=True)
+            st.caption(
+                "Blue = used much more by premium accounts · Gray = used much "
+                "more by regular accounts · Purple = used roughly equally."
+            )
+
+    with tabs[1]:
+        wc = wordcloud_view.single_tier_cloud(p_counts, wordcloud_view.PREMIUM_COLOUR)
+        if wc is None:
+            st.info("No premium tweets in scope.")
+        else:
+            fig, ax = plt.subplots(figsize=(10, 4.0), dpi=120)
+            ax.imshow(wc.to_array(), interpolation="bilinear")
+            ax.set_axis_off()
+            fig.tight_layout(pad=0)
+            st.pyplot(fig, use_container_width=True, clear_figure=True)
+
+    with tabs[2]:
+        wc = wordcloud_view.single_tier_cloud(r_counts, wordcloud_view.REGULAR_COLOUR)
+        if wc is None:
+            st.info("No regular tweets in scope.")
+        else:
+            fig, ax = plt.subplots(figsize=(10, 4.0), dpi=120)
+            ax.imshow(wc.to_array(), interpolation="bilinear")
+            ax.set_axis_off()
+            fig.tight_layout(pad=0)
+            st.pyplot(fig, use_container_width=True, clear_figure=True)
+
+    with tabs[3]:
+        fig = wordcloud_view.overlay_figure(p_counts, r_counts)
+        st.pyplot(fig, use_container_width=True, clear_figure=True)
+        st.caption(
+            "Both clouds rendered with 55 % alpha on the same canvas. "
+            "Where blue and gray overlap, both tiers are using the same "
+            "word at high frequency."
+        )
+
+    distinctive_cols = st.columns(2)
+    with distinctive_cols[0]:
+        st.markdown("**Most over-represented in premium tweets**")
+        rows = wordcloud_view.top_distinctive(p_counts, r_counts, n=10)
+        if rows:
+            st.dataframe(
+                pd.DataFrame(rows, columns=["word", "premium #", "regular #"]),
+                hide_index=True, use_container_width=True,
+            )
+        else:
+            st.caption("No distinctive premium words.")
+    with distinctive_cols[1]:
+        st.markdown("**Most over-represented in regular tweets**")
+        rows = wordcloud_view.top_distinctive(r_counts, p_counts, n=10)
+        if rows:
+            st.dataframe(
+                pd.DataFrame(rows, columns=["word", "regular #", "premium #"]),
+                hide_index=True, use_container_width=True,
+            )
+        else:
+            st.caption("No distinctive regular words.")
 
 # ---------------------------------------------------------------------------
 # Optional Claude insights.
