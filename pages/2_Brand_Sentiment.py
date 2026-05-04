@@ -190,11 +190,14 @@ with st.expander("Per-tweet scores", expanded=False):
 st.subheader("Why customers are unhappy")
 neg_df = df[df["llm_polarity"] == "negative"].reset_index(drop=True)
 
-if len(neg_df) < 4:
-    st.info("Need at least 4 negative tweets to surface themes.")
+if len(neg_df) < 6:
+    st.info(f"Need at least 6 negative tweets to surface themes (found {len(neg_df)}).")
 else:
+    # k slider needs max > min. With min=2, max must be >= 3, which requires
+    # len(neg_df) >= 6 (since max = min(8, len // 2)). Guard above ensures it.
+    k_max = min(8, len(neg_df) // 2)
     k = st.slider(
-        "Number of themes", 2, max(2, min(8, len(neg_df) // 2)),
+        "Number of themes", 2, k_max,
         value=min(4, max(2, len(neg_df) // 3)),
     )
     if st.button("Cluster negative tweets into themes"):
