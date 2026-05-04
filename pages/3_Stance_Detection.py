@@ -113,7 +113,7 @@ with left:
         color_discrete_map=config.STANCE_COLOURS,
     )
     fig.update_layout(showlegend=False, height=380, margin=dict(l=10, r=10, t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with right:
     st.subheader("Model confidence by stance")
@@ -122,7 +122,7 @@ with right:
         color_discrete_map=config.STANCE_COLOURS,
     )
     fig.update_layout(showlegend=False, height=380, margin=dict(l=10, r=10, t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # ---------------------------------------------------------------------------
 # Stance evolution over time.
@@ -144,7 +144,7 @@ else:
         color_discrete_map=config.STANCE_COLOURS, groupnorm=None,
     )
     fig.update_layout(height=380, margin=dict(l=10, r=10, t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # ---------------------------------------------------------------------------
 # Per-tweet table with reasoning.
@@ -157,7 +157,7 @@ view = df[df["stance"].isin(filt)].copy()
 view["created_at"] = pd.to_datetime(view["created_at"])
 st.dataframe(
     view[["created_at", "author", "stance", "confidence", "text", "reasoning"]],
-    use_container_width=True, hide_index=True,
+    width="stretch", hide_index=True,
 )
 
 csv_buf = io.StringIO()

@@ -133,7 +133,7 @@ with left:
         color="nuanced",
     )
     fig.update_layout(showlegend=False, height=380, margin=dict(l=10, r=10, t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with right:
     st.subheader("Polarity by model")
@@ -150,7 +150,7 @@ with right:
         color_discrete_map=config.POLARITY_COLOURS,
     )
     fig.update_layout(height=380, margin=dict(l=10, r=10, t=10, b=10))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # ---------------------------------------------------------------------------
 # Agreement matrix + LLM-vs-classical disagreements.
@@ -168,13 +168,13 @@ disagreements = benchmark.disagreement_examples(df, n=10)
 if disagreements.empty:
     st.success("No polarity disagreements between VADER and Claude on this sample.")
 else:
-    st.dataframe(disagreements, use_container_width=True, hide_index=True)
+    st.dataframe(disagreements, width="stretch", hide_index=True)
 
 # ---------------------------------------------------------------------------
 # Per-tweet detail.
 # ---------------------------------------------------------------------------
 with st.expander("Per-tweet scores", expanded=False):
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width="stretch", hide_index=True)
     csv_buf = io.StringIO()
     df.to_csv(csv_buf, index=False)
     st.download_button(
