@@ -101,12 +101,18 @@ m4.metric(
 # Day picker + treemap.
 # ---------------------------------------------------------------------------
 st.subheader("Daily snapshot")
-selected_day = st.select_slider(
-    "Day",
-    options=days,
-    value=days[-1],
-    format_func=lambda d: d.strftime("%a %b %d"),
-)
+if len(days) == 1:
+    # select_slider with one option crashes the JS slider component
+    # ("RangeError: min (0) is equal/bigger than max (0)"). Skip the slider.
+    selected_day = days[0]
+    st.caption(f"Only one day in the loaded data: **{selected_day.strftime('%a %b %d, %Y')}**")
+else:
+    selected_day = st.select_slider(
+        "Day",
+        options=days,
+        value=days[-1],
+        format_func=lambda d: d.strftime("%a %b %d"),
+    )
 
 day_top = aggregate.top_topics_for_day(rollup, selected_day, n=top_n)
 
