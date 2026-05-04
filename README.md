@@ -27,7 +27,7 @@ pip install -r requirements-classical.txt
 cp .env.example .env
 # edit .env and set ANTHROPIC_API_KEY
 
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 
 The app runs fully offline against baked-in demo data (sample brand and
@@ -39,7 +39,7 @@ account. Uploading a CSV with a `text` column works too. If you set
 
 ```
 x-opinionate/
-├── app.py                          Streamlit entrypoint (home + nav)
+├── streamlit_app.py                Streamlit entrypoint (home + nav)
 ├── pages/
 │   ├── 1_Brand_Sentiment.py        Brand sentiment dashboard
 │   └── 2_Stance_Detection.py       Stance detection dashboard
@@ -72,7 +72,7 @@ x-opinionate/
 3. Fill in:
    - **Repository**: `nil68657/x-opinionate`
    - **Branch**: `main`
-   - **Main file path**: `app.py`
+   - **Main file path**: `streamlit_app.py` (auto-detected by Cloud)
    - **Python version**: pinned by `runtime.txt` (3.12).
 4. Open **Advanced settings → Secrets** and paste:
 
