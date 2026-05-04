@@ -1,6 +1,12 @@
 # x-opinionate
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://x-opinionate.streamlit.app)
+[![CI](https://github.com/nil68657/x-opinionate/actions/workflows/ci.yml/badge.svg)](https://github.com/nil68657/x-opinionate/actions/workflows/ci.yml)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+
 Opinion mining on X-style social posts, powered by Claude.
+
+> Live demo: **<https://x-opinionate.streamlit.app>** *(replace with your real Cloud URL once deployed; the badge above already links there)*
 
 Two dashboards in one Streamlit app:
 

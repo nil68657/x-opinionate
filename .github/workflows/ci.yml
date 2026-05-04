@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & smoke-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile-check every Python file
+        run: |
+          python -m compileall -q streamlit_app.py pages src
+
+      - name: Import smoke-test (no LLM calls)
+        env:
+          # Empty values keep `has_anthropic()` / `has_x_api()` False so the
+          # imports don't try to hit any external API.
+          ANTHROPIC_API_KEY: ""
+          X_BEARER_TOKEN: ""
+        run: |
+          python - <<'PY'
+          from src import config
+          from src.tweets import sources
+          from src.sentiment import vader, llm, benchmark
+          from src.stance import classifier
+          from src.clustering import themes
+
+          assert len(sources.demo_brand_tweets()) >= 20, "brand fixtures missing"
+          assert len(sources.demo_stance_tweets()) >= 20, "stance fixtures missing"
+          assert sources.available_brands(), "no demo brands"
+          assert sources.available_topics(), "no demo topics"
+          assert config.ANTHROPIC_MODEL, "model default missing"
+          assert vader.score("This is fine.")["label"] in {"positive", "neutral", "negative"}
+          assert classifier.LABELS == ["for", "against", "neutral"]
+          assert benchmark.has_roberta() in {True, False}
+          # Cluster a tiny set with the TF-IDF fallback (no sentence-transformers in CI).
+          labels = themes.cluster([
+              "battery dies before lunch every day",
+              "battery drain is terrible after the update",
+              "the screen looks gorgeous and crisp",
+              "love the screen quality, very crisp display",
+          ], k=2)
+          assert len(labels) == 4
+          print("smoke OK")
+          PY
